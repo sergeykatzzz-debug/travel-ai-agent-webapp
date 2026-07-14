@@ -35,7 +35,13 @@
   .icon { font-size: 56px; margin-bottom: 12px; }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p.hint { color: var(--hint); font-size: 14px; margin: 0 0 28px; line-height: 1.4; max-width: 320px; }
-  p.step { color: var(--hint); font-size: 13px; margin: 14px 0 0; line-height: 1.4; max-width: 320px; }
+  ol.steps {
+    color: var(--text); font-size: 14px; line-height: 1.6;
+    margin: 18px 0 0; padding-left: 20px; max-width: 320px;
+    text-align: left; width: 100%;
+  }
+  body[dir="rtl"] ol.steps { padding-left: 0; padding-right: 20px; text-align: right; }
+  ol.steps li { margin-bottom: 4px; }
   button {
     appearance: none; border: none; border-radius: 12px;
     background: var(--btn); color: var(--btn-text);
@@ -53,7 +59,7 @@
     <h1 id="title">Add to Home Screen</h1>
     <p class="hint" id="hint">Add the bot's icon to your home screen for one-tap access.</p>
     <button id="action-btn" type="button">Add</button>
-    <p class="step" id="step">After tapping, confirm in the popup that Telegram shows next.</p>
+    <ol class="steps" id="steps"></ol>
   </div>
 
 <script>
@@ -61,9 +67,21 @@
   var STRINGS = {
     ru: {
       title: "Добавить бота на рабочий стол",
-      hint: "Значок бота появится прямо на рабочем столе телефона — не нужно будет искать его в Telegram.",
+      hint: "Значок бота появится прямо на рабочем столе телефона — не нужно будет искать его в Telegram. После нажатия кнопки ниже откроется системное окно, где нужно будет сделать ещё несколько шагов:",
       button: "📲 Добавить на рабочий стол",
-      step: "Нажмите кнопку — Telegram покажет своё окно с подтверждением, там нужно нажать «Добавить» ещё раз.",
+      steps: {
+        ios: [
+          "Нажмите значок «Поделиться» <b>⬆️</b> внизу экрана",
+          "Выберите пункт «На экран «Домой»» <b>➕</b>",
+          "Нажмите «Добавить» в правом верхнем углу"
+        ],
+        android: [
+          "В открывшемся окне нажмите кнопку «Добавить»"
+        ],
+        other: [
+          "Следуйте подсказкам, которые покажет Telegram"
+        ]
+      },
       added_title: "Готово!",
       added_hint: "Значок бота уже есть на рабочем столе — можно закрыть это окно и найти его среди других приложений.",
       unsupported_title: "Пока недоступно",
@@ -74,9 +92,21 @@
     },
     en: {
       title: "Add the bot to your Home Screen",
-      hint: "The bot's icon will appear right on your phone's home screen — no need to search for it inside Telegram.",
+      hint: "The bot's icon will appear right on your phone's home screen — no need to search for it inside Telegram. Tapping the button below opens a system window where you'll need a couple more steps:",
       button: "📲 Add to Home Screen",
-      step: "After tapping, Telegram will show its own confirmation popup — tap \"Add\" there too.",
+      steps: {
+        ios: [
+          "Tap the Share icon <b>⬆️</b> at the bottom of the screen",
+          "Select <b>➕</b> \"Add to Home Screen\"",
+          "Tap \"Add\" in the top-right corner"
+        ],
+        android: [
+          "In the window that opens, tap \"Add\""
+        ],
+        other: [
+          "Follow the prompts Telegram shows next"
+        ]
+      },
       added_title: "Done!",
       added_hint: "The bot's icon is already on your home screen — you can close this and find it among your other apps.",
       unsupported_title: "Not available yet",
@@ -87,9 +117,21 @@
     },
     he: {
       title: "הוספת הבוט למסך הבית",
-      hint: "סמל הבוט יופיע ישירות במסך הבית של הטלפון — לא יהיה צורך לחפש אותו בתוך טלגרם.",
+      hint: "סמל הבוט יופיע ישירות במסך הבית של הטלפון — לא יהיה צורך לחפש אותו בתוך טלגרם. לחיצה על הכפתור למטה תפתח חלון מערכת, שבו יהיה צורך בעוד כמה שלבים:",
       button: "📲 הוספה למסך הבית",
-      step: "אחרי הלחיצה, טלגרם יציג חלון אישור משלו — יש ללחוץ שם שוב על «הוספה».",
+      steps: {
+        ios: [
+          "הקש על סמל השיתוף <b>⬆️</b> בתחתית המסך",
+          "בחר <b>➕</b> «הוספה למסך הבית»",
+          "הקש «הוספה» בפינה הימנית העליונה"
+        ],
+        android: [
+          "בחלון שנפתח, הקש «הוספה»"
+        ],
+        other: [
+          "פעל לפי ההנחיות שטלגרם יציג"
+        ]
+      },
       added_title: "בוצע!",
       added_hint: "סמל הבוט כבר נמצא במסך הבית שלך — אפשר לסגור את החלון הזה ולמצוא אותו בין שאר האפליקציות.",
       unsupported_title: "עדיין לא זמין",
@@ -106,19 +148,25 @@
   if (lang === 'he') document.body.setAttribute('dir', 'rtl');
 
   var tg = window.Telegram && window.Telegram.WebApp;
+  var platformKey = 'other';
+  if (tg && tg.platform === 'ios') platformKey = 'ios';
+  else if (tg && tg.platform === 'android') platformKey = 'android';
+
   var els = {
     icon: document.getElementById('icon'),
     title: document.getElementById('title'),
     hint: document.getElementById('hint'),
     btn: document.getElementById('action-btn'),
-    step: document.getElementById('step'),
+    steps: document.getElementById('steps'),
     app: document.getElementById('app')
   };
 
   els.title.textContent = t.title;
   els.hint.textContent = t.hint;
   els.btn.textContent = t.button;
-  els.step.textContent = t.step;
+  els.steps.innerHTML = (t.steps[platformKey] || t.steps.other)
+    .map(function (s) { return '<li>' + s + '</li>'; })
+    .join('');
 
   function render(state) {
     if (state === 'added') {
@@ -127,23 +175,23 @@
       els.title.textContent = t.added_title;
       els.hint.textContent = t.added_hint;
       els.btn.style.display = 'none';
-      els.step.style.display = 'none';
+      els.steps.style.display = 'none';
     } else if (state === 'unsupported') {
       els.icon.textContent = 'ℹ️';
       els.title.textContent = t.unsupported_title;
       els.hint.textContent = t.unsupported_hint;
       els.btn.style.display = 'none';
-      els.step.style.display = 'none';
+      els.steps.style.display = 'none';
     } else if (state === 'missed') {
       els.icon.textContent = '📲';
       els.title.textContent = t.missed_title;
       els.hint.textContent = t.missed_hint;
       els.btn.textContent = t.retry;
       els.btn.style.display = 'block';
-      els.step.style.display = 'block';
+      els.steps.style.display = 'block';
     } else {
       els.btn.style.display = 'block';
-      els.step.style.display = 'block';
+      els.steps.style.display = 'block';
     }
   }
 
