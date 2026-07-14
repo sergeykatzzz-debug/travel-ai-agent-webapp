@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Add to Home Screen</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #ffffff);
+    --text: var(--tg-theme-text-color, #111111);
+    --hint: var(--tg-theme-hint-color, #707579);
+    --btn: var(--tg-theme-button-color, #2ea6ff);
+    --btn-text: var(--tg-theme-button-text-color, #ffffff);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1e1e1e; --text: #f0f0f0; --hint: #9a9a9a; --btn: #2ea6ff; --btn-text: #ffffff; }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  body[dir="rtl"] { text-align: right; }
+  .wrap {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .icon { font-size: 56px; margin-bottom: 12px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p.hint { color: var(--hint); font-size: 14px; margin: 0 0 28px; line-height: 1.4; max-width: 320px; }
+  button {
+    appearance: none; border: none; border-radius: 12px;
+    background: var(--btn); color: var(--btn-text);
+    font-size: 16px; font-weight: 600;
+    padding: 14px 28px; width: 100%; max-width: 320px;
+    cursor: pointer;
+  }
+  button:active { opacity: 0.85; }
+  .state-success .icon { color: #34c759; }
+</style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="icon" id="icon">📲</div>
+    <h1 id="title">Add to Home Screen</h1>
+    <p class="hint" id="hint">Add the bot's icon to your home screen for one-tap access.</p>
+    <button id="action-btn" type="button">Add</button>
+  </div>
+
+<script>
+(function () {
+  var STRINGS = {
+    ru: {
+      title: "Добавить на рабочий стол",
+      hint: "Добавьте иконку бота на рабочий стол телефона — открывать бота станет удобнее.",
+      button: "📲 Добавить",
+      added_title: "Готово!",
+      added_hint: "Иконка бота уже на вашем рабочем столе.",
+      unsupported_title: "Недоступно",
+      unsupported_hint: "Эта версия Telegram или устройство не поддерживает добавление на рабочий стол. Обновите приложение Telegram и попробуйте снова.",
+      missed_title: "Не сейчас",
+      missed_hint: "Вы отклонили добавление. Можете попробовать ещё раз.",
+      retry: "Попробовать снова"
+    },
+    en: {
+      title: "Add to Home Screen",
+      hint: "Add the bot's icon to your phone's home screen for one-tap access.",
+      button: "📲 Add",
+      added_title: "Done!",
+      added_hint: "The bot's icon is already on your home screen.",
+      unsupported_title: "Unavailable",
+      unsupported_hint: "This Telegram version or device doesn't support adding to the home screen. Update Telegram and try again.",
+      missed_title: "Not now",
+      missed_hint: "You dismissed the prompt. You can try again.",
+      retry: "Try again"
+    },
+    he: {
+      title: "הוספה למסך הבית",
+      hint: "הוסף את סמל הבוט למסך הבית של הטלפון לגישה מהירה.",
+      button: "📲 הוספה",
+      added_title: "בוצע!",
+      added_hint: "סמל הבוט כבר נמצא במסך הבית שלך.",
+      unsupported_title: "לא זמין",
+      unsupported_hint: "הגרסה או המכשיר הזה לא תומכים בהוספה למסך הבית. עדכן את טלגרם ונסה שוב.",
+      missed_title: "לא עכשיו",
+      missed_hint: "ביטלת את הבקשה. אפשר לנסות שוב.",
+      retry: "נסה שוב"
+    }
+  };
+
+  var params = new URLSearchParams(location.search);
+  var lang = params.get('lang');
+  var t = STRINGS[lang] || STRINGS.en;
+  if (lang === 'he') document.body.setAttribute('dir', 'rtl');
+
+  var tg = window.Telegram && window.Telegram.WebApp;
+  var els = {
+    icon: document.getElementById('icon'),
+    title: document.getElementById('title'),
+    hint: document.getElementById('hint'),
+    btn: document.getElementById('action-btn'),
+    app: document.getElementById('app')
+  };
+
+  els.title.textContent = t.title;
+  els.hint.textContent = t.hint;
+  els.btn.textContent = t.button;
+
+  function render(state) {
+    if (state === 'added') {
+      els.app.className = 'wrap state-success';
+      els.icon.textContent = '✅';
+      els.title.textContent = t.added_title;
+      els.hint.textContent = t.added_hint;
+      els.btn.style.display = 'none';
+    } else if (state === 'unsupported') {
+      els.icon.textContent = 'ℹ️';
+      els.title.textContent = t.unsupported_title;
+      els.hint.textContent = t.unsupported_hint;
+      els.btn.style.display = 'none';
+    } else if (state === 'missed') {
+      els.icon.textContent = '📲';
+      els.title.textContent = t.missed_title;
+      els.hint.textContent = t.missed_hint;
+      els.btn.textContent = t.retry;
+      els.btn.style.display = 'block';
+    } else {
+      els.btn.style.display = 'block';
+    }
+  }
+
+  function notifyBot(status) {
+    if (tg && tg.sendData) {
+      try { tg.sendData(JSON.stringify({ home_screen: status })); } catch (e) {}
+    }
+  }
+
+  if (!tg || !tg.isVersionAtLeast || !tg.isVersionAtLeast('8.0')) {
+    render('unsupported');
+  } else {
+    tg.ready();
+    tg.expand();
+
+    tg.onEvent('homeScreenAdded', function () {
+      render('added');
+      notifyBot('added');
+    });
+    tg.onEvent('homeScreenChecked', function () {});
+
+    tg.checkHomeScreenStatus(function (status) {
+      // status: 'unsupported' | 'unknown' | 'added' | 'missed'
+      render(status === 'unknown' ? 'default' : status);
+    });
+
+    els.btn.addEventListener('click', function () {
+      tg.addToHomeScreen();
+    });
+  }
+})();
+</script>
+</body>
+</html>
