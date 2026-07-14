@@ -35,12 +35,15 @@
   .icon { font-size: 56px; margin-bottom: 12px; }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p.hint { color: var(--hint); font-size: 14px; margin: 0 0 28px; line-height: 1.4; max-width: 320px; }
+  .steps-block { margin-top: 18px; max-width: 320px; width: 100%; text-align: left; }
+  body[dir="rtl"] .steps-block { text-align: right; }
+  .steps-label { font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+  .steps-block + .steps-block { margin-top: 20px; }
   ol.steps {
     color: var(--text); font-size: 14px; line-height: 1.6;
-    margin: 18px 0 0; padding-left: 20px; max-width: 320px;
-    text-align: left; width: 100%;
+    margin: 0; padding-left: 20px;
   }
-  body[dir="rtl"] ol.steps { padding-left: 0; padding-right: 20px; text-align: right; }
+  body[dir="rtl"] ol.steps { padding-left: 0; padding-right: 20px; }
   ol.steps li { margin-bottom: 4px; }
   button {
     appearance: none; border: none; border-radius: 12px;
@@ -59,7 +62,14 @@
     <h1 id="title">Add to Home Screen</h1>
     <p class="hint" id="hint">Add the bot's icon to your home screen for one-tap access.</p>
     <button id="action-btn" type="button">Add</button>
-    <ol class="steps" id="steps"></ol>
+    <div class="steps-block" id="block-ios">
+      <p class="steps-label" id="label-ios"></p>
+      <ol class="steps" id="steps-ios"></ol>
+    </div>
+    <div class="steps-block" id="block-android">
+      <p class="steps-label" id="label-android"></p>
+      <ol class="steps" id="steps-android"></ol>
+    </div>
   </div>
 
 <script>
@@ -69,6 +79,8 @@
       title: "Добавить бота на рабочий стол",
       hint: "Значок бота появится прямо на рабочем столе телефона — не нужно будет искать его в Telegram. После нажатия кнопки ниже откроется системное окно, где нужно будет сделать ещё несколько шагов:",
       button: "📲 Добавить на рабочий стол",
+      label_ios: "Для iOS:",
+      label_android: "Для Android:",
       steps: {
         ios: [
           "Откройте меню (значок <b>•••</b>)",
@@ -78,9 +90,6 @@
         ],
         android: [
           "В открывшемся окне нажмите кнопку «Добавить»"
-        ],
-        other: [
-          "Следуйте подсказкам, которые покажет Telegram"
         ]
       },
       added_title: "Готово!",
@@ -95,6 +104,8 @@
       title: "Add the bot to your Home Screen",
       hint: "The bot's icon will appear right on your phone's home screen — no need to search for it inside Telegram. Tapping the button below opens a system window where you'll need a couple more steps:",
       button: "📲 Add to Home Screen",
+      label_ios: "For iOS:",
+      label_android: "For Android:",
       steps: {
         ios: [
           "Open the menu (<b>•••</b> icon)",
@@ -104,9 +115,6 @@
         ],
         android: [
           "In the window that opens, tap \"Add\""
-        ],
-        other: [
-          "Follow the prompts Telegram shows next"
         ]
       },
       added_title: "Done!",
@@ -121,6 +129,8 @@
       title: "הוספת הבוט למסך הבית",
       hint: "סמל הבוט יופיע ישירות במסך הבית של הטלפון — לא יהיה צורך לחפש אותו בתוך טלגרם. לחיצה על הכפתור למטה תפתח חלון מערכת, שבו יהיה צורך בעוד כמה שלבים:",
       button: "📲 הוספה למסך הבית",
+      label_ios: "ל-iOS:",
+      label_android: "ל-Android:",
       steps: {
         ios: [
           "פתח את התפריט (סמל <b>•••</b>)",
@@ -130,9 +140,6 @@
         ],
         android: [
           "בחלון שנפתח, הקש «הוספה»"
-        ],
-        other: [
-          "פעל לפי ההנחיות שטלגרם יציג"
         ]
       },
       added_title: "בוצע!",
@@ -151,25 +158,38 @@
   if (lang === 'he') document.body.setAttribute('dir', 'rtl');
 
   var tg = window.Telegram && window.Telegram.WebApp;
-  var platformKey = 'other';
-  if (tg && tg.platform === 'ios') platformKey = 'ios';
-  else if (tg && tg.platform === 'android') platformKey = 'android';
 
   var els = {
     icon: document.getElementById('icon'),
     title: document.getElementById('title'),
     hint: document.getElementById('hint'),
     btn: document.getElementById('action-btn'),
-    steps: document.getElementById('steps'),
+    blockIos: document.getElementById('block-ios'),
+    blockAndroid: document.getElementById('block-android'),
+    labelIos: document.getElementById('label-ios'),
+    labelAndroid: document.getElementById('label-android'),
+    stepsIos: document.getElementById('steps-ios'),
+    stepsAndroid: document.getElementById('steps-android'),
     app: document.getElementById('app')
   };
+
+  function renderStepList(el, items) {
+    el.innerHTML = items.map(function (s) { return '<li>' + s + '</li>'; }).join('');
+  }
 
   els.title.textContent = t.title;
   els.hint.textContent = t.hint;
   els.btn.textContent = t.button;
-  els.steps.innerHTML = (t.steps[platformKey] || t.steps.other)
-    .map(function (s) { return '<li>' + s + '</li>'; })
-    .join('');
+  els.labelIos.textContent = t.label_ios;
+  els.labelAndroid.textContent = t.label_android;
+  renderStepList(els.stepsIos, t.steps.ios);
+  renderStepList(els.stepsAndroid, t.steps.android);
+
+  function setStepsVisible(visible) {
+    var display = visible ? 'block' : 'none';
+    els.blockIos.style.display = display;
+    els.blockAndroid.style.display = display;
+  }
 
   function render(state) {
     if (state === 'added') {
@@ -178,23 +198,23 @@
       els.title.textContent = t.added_title;
       els.hint.textContent = t.added_hint;
       els.btn.style.display = 'none';
-      els.steps.style.display = 'none';
+      setStepsVisible(false);
     } else if (state === 'unsupported') {
       els.icon.textContent = 'ℹ️';
       els.title.textContent = t.unsupported_title;
       els.hint.textContent = t.unsupported_hint;
       els.btn.style.display = 'none';
-      els.steps.style.display = 'none';
+      setStepsVisible(false);
     } else if (state === 'missed') {
       els.icon.textContent = '📲';
       els.title.textContent = t.missed_title;
       els.hint.textContent = t.missed_hint;
       els.btn.textContent = t.retry;
       els.btn.style.display = 'block';
-      els.steps.style.display = 'block';
+      setStepsVisible(true);
     } else {
       els.btn.style.display = 'block';
-      els.steps.style.display = 'block';
+      setStepsVisible(true);
     }
   }
 
