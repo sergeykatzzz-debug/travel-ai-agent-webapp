@@ -35,6 +35,7 @@
   .icon { font-size: 56px; margin-bottom: 12px; }
   h1 { font-size: 20px; margin: 0 0 8px; }
   p.hint { color: var(--hint); font-size: 14px; margin: 0 0 28px; line-height: 1.4; max-width: 320px; }
+  p.step { color: var(--hint); font-size: 13px; margin: 14px 0 0; line-height: 1.4; max-width: 320px; }
   button {
     appearance: none; border: none; border-radius: 12px;
     background: var(--btn); color: var(--btn-text);
@@ -52,45 +53,49 @@
     <h1 id="title">Add to Home Screen</h1>
     <p class="hint" id="hint">Add the bot's icon to your home screen for one-tap access.</p>
     <button id="action-btn" type="button">Add</button>
+    <p class="step" id="step">After tapping, confirm in the popup that Telegram shows next.</p>
   </div>
 
 <script>
 (function () {
   var STRINGS = {
     ru: {
-      title: "Добавить на рабочий стол",
-      hint: "Добавьте иконку бота на рабочий стол телефона — открывать бота станет удобнее.",
-      button: "📲 Добавить",
+      title: "Добавить бота на рабочий стол",
+      hint: "Значок бота появится прямо на рабочем столе телефона — не нужно будет искать его в Telegram.",
+      button: "📲 Добавить на рабочий стол",
+      step: "Нажмите кнопку — Telegram покажет своё окно с подтверждением, там нужно нажать «Добавить» ещё раз.",
       added_title: "Готово!",
-      added_hint: "Иконка бота уже на вашем рабочем столе.",
-      unsupported_title: "Недоступно",
-      unsupported_hint: "Эта версия Telegram или устройство не поддерживает добавление на рабочий стол. Обновите приложение Telegram и попробуйте снова.",
-      missed_title: "Не сейчас",
-      missed_hint: "Вы отклонили добавление. Можете попробовать ещё раз.",
+      added_hint: "Значок бота уже есть на рабочем столе — можно закрыть это окно и найти его среди других приложений.",
+      unsupported_title: "Пока недоступно",
+      unsupported_hint: "Добавление на рабочий стол работает только в мобильном приложении Telegram (iOS/Android) последней версии. Откройте бота с телефона и обновите Telegram, если нужно.",
+      missed_title: "Не добавлено",
+      missed_hint: "Вы закрыли окно подтверждения, не нажав «Добавить». Нажмите кнопку ниже, чтобы попробовать снова.",
       retry: "Попробовать снова"
     },
     en: {
-      title: "Add to Home Screen",
-      hint: "Add the bot's icon to your phone's home screen for one-tap access.",
-      button: "📲 Add",
+      title: "Add the bot to your Home Screen",
+      hint: "The bot's icon will appear right on your phone's home screen — no need to search for it inside Telegram.",
+      button: "📲 Add to Home Screen",
+      step: "After tapping, Telegram will show its own confirmation popup — tap \"Add\" there too.",
       added_title: "Done!",
-      added_hint: "The bot's icon is already on your home screen.",
-      unsupported_title: "Unavailable",
-      unsupported_hint: "This Telegram version or device doesn't support adding to the home screen. Update Telegram and try again.",
-      missed_title: "Not now",
-      missed_hint: "You dismissed the prompt. You can try again.",
+      added_hint: "The bot's icon is already on your home screen — you can close this and find it among your other apps.",
+      unsupported_title: "Not available yet",
+      unsupported_hint: "Adding to the home screen only works in the latest Telegram mobile app (iOS/Android). Open the bot from your phone and update Telegram if needed.",
+      missed_title: "Not added",
+      missed_hint: "You closed the confirmation popup without tapping \"Add\". Tap the button below to try again.",
       retry: "Try again"
     },
     he: {
-      title: "הוספה למסך הבית",
-      hint: "הוסף את סמל הבוט למסך הבית של הטלפון לגישה מהירה.",
-      button: "📲 הוספה",
+      title: "הוספת הבוט למסך הבית",
+      hint: "סמל הבוט יופיע ישירות במסך הבית של הטלפון — לא יהיה צורך לחפש אותו בתוך טלגרם.",
+      button: "📲 הוספה למסך הבית",
+      step: "אחרי הלחיצה, טלגרם יציג חלון אישור משלו — יש ללחוץ שם שוב על «הוספה».",
       added_title: "בוצע!",
-      added_hint: "סמל הבוט כבר נמצא במסך הבית שלך.",
-      unsupported_title: "לא זמין",
-      unsupported_hint: "הגרסה או המכשיר הזה לא תומכים בהוספה למסך הבית. עדכן את טלגרם ונסה שוב.",
-      missed_title: "לא עכשיו",
-      missed_hint: "ביטלת את הבקשה. אפשר לנסות שוב.",
+      added_hint: "סמל הבוט כבר נמצא במסך הבית שלך — אפשר לסגור את החלון הזה ולמצוא אותו בין שאר האפליקציות.",
+      unsupported_title: "עדיין לא זמין",
+      unsupported_hint: "הוספה למסך הבית עובדת רק באפליקציית טלגרם הניידת (iOS/Android) בגרסה העדכנית. פתח את הבוט מהטלפון ועדכן את טלגרם במידת הצורך.",
+      missed_title: "לא נוסף",
+      missed_hint: "סגרת את חלון האישור בלי ללחוץ «הוספה». לחץ על הכפתור למטה כדי לנסות שוב.",
       retry: "נסה שוב"
     }
   };
@@ -106,12 +111,14 @@
     title: document.getElementById('title'),
     hint: document.getElementById('hint'),
     btn: document.getElementById('action-btn'),
+    step: document.getElementById('step'),
     app: document.getElementById('app')
   };
 
   els.title.textContent = t.title;
   els.hint.textContent = t.hint;
   els.btn.textContent = t.button;
+  els.step.textContent = t.step;
 
   function render(state) {
     if (state === 'added') {
@@ -120,19 +127,23 @@
       els.title.textContent = t.added_title;
       els.hint.textContent = t.added_hint;
       els.btn.style.display = 'none';
+      els.step.style.display = 'none';
     } else if (state === 'unsupported') {
       els.icon.textContent = 'ℹ️';
       els.title.textContent = t.unsupported_title;
       els.hint.textContent = t.unsupported_hint;
       els.btn.style.display = 'none';
+      els.step.style.display = 'none';
     } else if (state === 'missed') {
       els.icon.textContent = '📲';
       els.title.textContent = t.missed_title;
       els.hint.textContent = t.missed_hint;
       els.btn.textContent = t.retry;
       els.btn.style.display = 'block';
+      els.step.style.display = 'block';
     } else {
       els.btn.style.display = 'block';
+      els.step.style.display = 'block';
     }
   }
 
