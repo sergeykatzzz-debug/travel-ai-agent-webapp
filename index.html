@@ -58,7 +58,7 @@
 </head>
 <body>
   <div class="wrap" id="app">
-    <div class="icon" id="icon">📲</div>
+    <div class="icon" id="icon">📌</div>
     <h1 id="title">Add to Home Screen</h1>
     <p class="hint" id="hint">Add the bot's icon to your home screen for one-tap access.</p>
     <button id="action-btn" type="button">Add</button>
@@ -76,16 +76,16 @@
 (function () {
   var STRINGS = {
     ru: {
-      title: "Добавить бота на рабочий стол",
-      hint: "Значок бота появится прямо на рабочем столе телефона — не нужно будет искать его в Telegram. После нажатия кнопки ниже откроется системное окно, где нужно будет сделать ещё несколько шагов:",
-      button: "📲 Добавить на рабочий стол",
+      title: "Добавить бота на главный экран",
+      hint: "Значок бота появится прямо на главном экране телефона — не нужно будет искать его в Telegram. После нажатия кнопки ниже откроется системное окно, где нужно будет сделать ещё несколько шагов:",
+      button: "📌 Добавить на главный экран",
       label_ios: "Для iOS:",
       label_android: "Для Android:",
       steps: {
         ios: [
           "Откройте меню (значок <b>•••</b>)",
           "Выберите «Поделиться»",
-          "Выберите «Добавить на экран «Домой»»",
+          "Выберите «Добавить на главный экран»",
           "Нажмите «Добавить»"
         ],
         android: [
@@ -93,9 +93,9 @@
         ]
       },
       added_title: "Готово!",
-      added_hint: "Значок бота уже есть на рабочем столе — можно закрыть это окно и найти его среди других приложений.",
+      added_hint: "Значок бота уже есть на главном экране — можно закрыть это окно и найти его среди других приложений.",
       unsupported_title: "Пока недоступно",
-      unsupported_hint: "Добавление на рабочий стол работает только в мобильном приложении Telegram (iOS/Android) последней версии. Откройте бота с телефона и обновите Telegram, если нужно.",
+      unsupported_hint: "Добавление на главный экран работает только в мобильном приложении Telegram (iOS/Android) последней версии. Откройте бота с телефона и обновите Telegram, если нужно.",
       missed_title: "Не добавлено",
       missed_hint: "Вы закрыли окно подтверждения, не нажав «Добавить». Нажмите кнопку ниже, чтобы попробовать снова.",
       retry: "Попробовать снова"
@@ -103,7 +103,7 @@
     en: {
       title: "Add the bot to your Home Screen",
       hint: "The bot's icon will appear right on your phone's home screen — no need to search for it inside Telegram. Tapping the button below opens a system window where you'll need a couple more steps:",
-      button: "📲 Add to Home Screen",
+      button: "📌 Add to Home Screen",
       label_ios: "For iOS:",
       label_android: "For Android:",
       steps: {
@@ -128,7 +128,7 @@
     he: {
       title: "הוספת הבוט למסך הבית",
       hint: "סמל הבוט יופיע ישירות במסך הבית של הטלפון — לא יהיה צורך לחפש אותו בתוך טלגרם. לחיצה על הכפתור למטה תפתח חלון מערכת, שבו יהיה צורך בעוד כמה שלבים:",
-      button: "📲 הוספה למסך הבית",
+      button: "📌 הוספה למסך הבית",
       label_ios: "ל-iOS:",
       label_android: "ל-Android:",
       steps: {
@@ -206,7 +206,7 @@
       els.btn.style.display = 'none';
       setStepsVisible(false);
     } else if (state === 'missed') {
-      els.icon.textContent = '📲';
+      els.icon.textContent = '📌';
       els.title.textContent = t.missed_title;
       els.hint.textContent = t.missed_hint;
       els.btn.textContent = t.retry;
